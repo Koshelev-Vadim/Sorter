@@ -39,7 +39,10 @@ namespace Sorter.Core.Services
                 _currentFileBufferPostition = 0;
             }
 
-            IntegerHelpers.CopyToBytesArray(num, _fileBuffer, ref _currentFileBufferPostition);
+            //IntegerHelpers.CopyToBytesArray(num, _fileBuffer, ref _currentFileBufferPostition);
+            var numBytes = Encoding.ASCII.GetBytes(num.ToString());
+            Array.Copy(numBytes, 0, _fileBuffer, _currentFileBufferPostition, numBytes.Length);
+            _currentFileBufferPostition += numBytes.Length;
 
             // !!!!!!!!!!!!!!!!!!!!!!!!
             //numString.CopyTo(0, _fileBuffer, _currentFileBufferPostition, numString.Length);
@@ -47,12 +50,15 @@ namespace Sorter.Core.Services
 
             _fileBuffer[_currentFileBufferPostition++] = 46; //'.'
 
-            int i = 0;
-            while (i < stringBufferLength)
-            {
-                _fileBuffer[_currentFileBufferPostition++] = stringBuffer[i];
-                i++;
-            }
+            Array.Copy(stringBuffer, 0, _fileBuffer, _currentFileBufferPostition, stringBufferLength);
+            _currentFileBufferPostition += stringBufferLength;
+
+            //int i = 0;
+            //while (i < stringBufferLength)
+            //{
+            //    _fileBuffer[_currentFileBufferPostition++] = stringBuffer[i];
+            //    i++;
+            //}
 
 
             _fileBuffer[_currentFileBufferPostition++] = 13; //'\r'

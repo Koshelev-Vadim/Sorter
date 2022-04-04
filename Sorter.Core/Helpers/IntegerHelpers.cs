@@ -1,4 +1,6 @@
-﻿namespace Sorter.Core.Helpers
+﻿using System.Text;
+
+namespace Sorter.Core.Helpers
 {
     public static class IntegerHelpers
     {
@@ -13,8 +15,12 @@
 
         public static void CopyToBytesArray(int num, byte[] data, ref int dataPosFrom)
         {
+
+            //Encoding.ASCII.GetBytes()
+
+            123.ToString();
             bool numIsStarted = false;
-            int positionValue = 0;
+            int positionValue;
             int partNumb = 0;
             for (var i = 9; i >= 0; i--)
             {

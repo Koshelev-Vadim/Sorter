@@ -24,19 +24,6 @@
 
         public Span<byte> GetNextString()
         {
-
-            //вот тут!!!!!
-            //var s = _reader.ReadLine();
-            //if (string.IsNullOrEmpty(s))
-            //    return null;
-
-            //var str = s + "\r\n";
-            //return new Span<char>(str.ToCharArray());
-
-
-
-
-
             var span = _fileBuffer.AsSpan(_currentOffset, _fileBufferSize - _currentOffset);
             var stringLastSymbol = span.IndexOf((byte)10); //'\n'
 
@@ -58,6 +45,8 @@
         private bool LoadNewBuffer()
         {
             int i = 0;
+            //Array.Copy(_fileBuffer, _currentOffset, _fileBuffer, 0, _fileBuffer.Length - _currentOffset);
+
             while (_currentOffset + i < _fileBuffer.Length)
             {
                 _fileBuffer[i] = _fileBuffer[_currentOffset + i];

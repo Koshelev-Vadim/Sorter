@@ -33,7 +33,7 @@ namespace Sorter.Core.Services
             while (true)
             {
                 var currentDataRowLastElem = data.IndexOf((byte)10); // '\n'
-                if (currentDataRowLastElem < 0)
+                if (currentDataRowLastElem <= 0)
                     break;
 
                 var dataRow = data.Slice(0, currentDataRowLastElem - 1);
