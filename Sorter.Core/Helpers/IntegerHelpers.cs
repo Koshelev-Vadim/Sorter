@@ -13,5 +13,22 @@ namespace Sorter.Core.Helpers
             return res;
         }
 
+        public static int ToInt(this Span<byte> data, int numLength)
+        {
+            int res = 0;
+            for (var i = 0; i < numLength; i++)
+                res = res * 10 + (data[i] - 48); // '0'
+
+            return res;
+        }
+
+        public static int ToInt(this byte[] data, int numLength)
+        {
+            int res = 0;
+            for (var i = 0; i < numLength; i++)
+                res = res * 10 + (data[i] - 48); // '0'
+
+            return res;
+        }
     }
 }

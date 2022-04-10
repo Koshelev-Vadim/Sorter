@@ -13,7 +13,7 @@ namespace Sorter.Core.Services
         {
             _tree = new Dictionary<byte, DictionaryNode>()
             {
-                { (byte) 32,  new DictionaryNode() } // ' '
+                { 32,  new DictionaryNode() } // ' '
             };
         }
 

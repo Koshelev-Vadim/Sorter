@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using Sorter.Core.Model;
 using System.Diagnostics;
 using System.Text;
 
@@ -10,7 +11,6 @@ namespace Sorter.Core.Services
         private ITreeDataSaver _dataSaver;
 
         private ILogger<Processor> _logger;
-        //private const int maxBufferSizeSetting = 1024 * 1024 * 100; // 100 мегабайт
 
         public Processor(ITreeGenerator treeGenerator, ITreeDataSaver dataSaver, ILogger<Processor> logger)
         {
@@ -29,75 +29,101 @@ namespace Sorter.Core.Services
 
 
             var treeMaxStringLength = 0;
-            var interationNum = 0;
+            //var interationNum = 0;
             var fileBuffer = new byte[(batchSizeInMegabytes + 1) * 1024 * 1024];
-            using (var reader = File.OpenText(inputFile))
-            {
+            //using (var reader = File.OpenText(inputFile))
+            //{
 
-                while (true)
-                {
-                    _logger.LogInformation($"Tree generation started: ");
-                    var tree = _treeGenerator.GenerateTree(reader, fileBuffer);
+            //    while (true)
+            //    {
+            //        _logger.LogInformation($"Tree generation started: ");
+            //        var tree = _treeGenerator.GenerateTree(reader, fileBuffer);
 
-                    if (tree == null)
-                        break;
+            //        if (tree == null)
+            //            break;
 
-                    if (tree.GetMaxStringLength() > treeMaxStringLength)
-                        treeMaxStringLength = tree.GetMaxStringLength();
+            //        if (tree.GetMaxStringLength() > treeMaxStringLength)
+            //            treeMaxStringLength = tree.GetMaxStringLength();
 
-                    var seconds = stopWatch.ElapsedMilliseconds / 1000;
-                    Console.WriteLine($"Tree generation done in {seconds} секунд");
+            //        var seconds = stopWatch.ElapsedMilliseconds / 1000;
+            //        Console.WriteLine($"Tree generation done in {seconds} секунд");
 
-                    using (var fileWriter = new FileWriter(Path.Combine("temp", interationNum.ToString()), fileBuffer))
-                    {
-                        _dataSaver.SaveSortedData(tree, fileWriter);
-                    }
+            //        using (var fileWriter = new FileWriter(Path.Combine("temp", interationNum.ToString()), fileBuffer))
+            //        {
+            //            _dataSaver.SaveSortedData(tree, fileWriter);
+            //        }
 
-                    seconds = stopWatch.ElapsedMilliseconds / 1000;
-                    Console.WriteLine($"Sorting done in {seconds} seconds");
+            //        seconds = stopWatch.ElapsedMilliseconds / 1000;
+            //        Console.WriteLine($"Sorting done in {seconds} seconds");
 
-                    interationNum++;
-                }
-            }
+            //        interationNum++;
+            //    }
+            //}
 
-            Console.WriteLine($"Temp files generated...");
+            //Console.WriteLine($"Temp files generated...");
 
-            if (interationNum == 1)
-            {
-                File.Move(Path.Combine("temp", "0"), outputFile, true);
+            //if (interationNum == 1)
+            //{
+            //    File.Move(Path.Combine("temp", "0"), outputFile, true);
 
-                var seconds = stopWatch.ElapsedMilliseconds / 1000;
-                Console.WriteLine($"All done in {seconds} seconds");
+            //    var seconds = stopWatch.ElapsedMilliseconds / 1000;
+            //    Console.WriteLine($"All done in {seconds} seconds");
 
-                return;
-            }
+            //    return;
+            //}
+
+            var interationNum = 11;
 
             using (var fileWriter = new FileWriter(outputFile, fileBuffer))
             {
                 _logger.LogInformation($"File created '{outputFile}'");
 
-                var tree = new SmallFileTree();
-                var treeRowSaver = new TreeRowSaver(tree, fileWriter, 100);
-                var smallFiles = new SmallFileReader[interationNum];
 
+
+                //var tree = new SmallFileTree();
+                //var treeRowSaver = new TreeRowSaver(tree, fileWriter, 100);
+                var smallFiles = new SmallFileReader[interationNum];
+                var rows = new List<FileRow>(interationNum);
                 // инициализация дерева
                 for (var i = 0; i < interationNum; i++)
                 {
                     smallFiles[i] = new SmallFileReader();
                     smallFiles[i].Open(i, (double)batchSizeInMegabytes / interationNum);
-
-                    tree.AddToTree(smallFiles[i].GetNextString(), i);
+                    rows.Add(new FileRow(smallFiles[i].GetNextString(), i));
                 }
 
+                var comparer = new FileRowComparer();
                 while (true)
                 {
-                    var tempFileNum = treeRowSaver.SaveRowAndRemove();
-                    if (tempFileNum == null)
+                    var maxRow = rows.Max(comparer);
+
+                    if (maxRow == null)
                         break;
 
-                    if (!smallFiles[tempFileNum.Value].IsClosed())
-                        tree.AddToTree(smallFiles[tempFileNum.Value].GetNextString(), tempFileNum);
+                    fileWriter.WriteToFile(maxRow.Number, maxRow.String, maxRow.String.Length);
+                    rows.Remove(maxRow);
+
+                    if (!smallFiles[maxRow.FileNum].IsClosed())
+                    {
+                        var row = smallFiles[maxRow.FileNum].GetNextString();
+                        if (row != null)
+                            rows.Add(new FileRow(row, maxRow.FileNum));
+                    }
+                        
                 }
+
+
+                
+
+                //while (true)
+                //{
+                //    var tempFileNum = treeRowSaver.SaveRowAndRemove();
+                //    if (tempFileNum == null)
+                //        break;
+
+                //    if (!smallFiles[tempFileNum.Value].IsClosed())
+                //        tree.AddToTree(smallFiles[tempFileNum.Value].GetNextString(), tempFileNum);
+                //}
 
                 stopWatch.Stop();
 
@@ -105,15 +131,6 @@ namespace Sorter.Core.Services
                 Console.WriteLine($"File '{outputFile}' filled in {seconds.ToString("F")} seconds");
             }
 
-
-
-            //stopWatch.Stop();
-            //stopWatch.Start();
-
-            //_dataSaver.SaveSortedData(tree, outputFile, buffer);
-
-            //seconds = (double)(stopWatch.ElapsedMilliseconds / 1000);
-            //Console.WriteLine($"Сортировка завершена за {seconds.ToString("F")} секунд");
         }
 
 

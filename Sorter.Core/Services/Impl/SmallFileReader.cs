@@ -45,8 +45,6 @@
         private bool LoadNewBuffer()
         {
             int i = 0;
-            //Array.Copy(_fileBuffer, _currentOffset, _fileBuffer, 0, _fileBuffer.Length - _currentOffset);
-
             while (_currentOffset + i < _fileBuffer.Length)
             {
                 _fileBuffer[i] = _fileBuffer[_currentOffset + i];

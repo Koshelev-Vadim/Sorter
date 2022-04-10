@@ -2,7 +2,7 @@
   "profiles": {
     "Sorter": {
       "commandName": "Project",
-      "commandLineArgs": "-inputFileName 03_04_2022_00_29_37_100_Mb.txt -outputFileName result.txt -batchSizeInMegabytes 2048"
+      "commandLineArgs": "-inputFileName 03_04_2022_17_06_05_1024_Mb.txt -outputFileName result.txt -batchSizeInMegabytes 100"
     }
   }
 }

@@ -36,15 +36,6 @@ namespace Sorter.Core.Services
             _tempFileBuffer = new byte[span.Length - lastRowElement - 1];
             Array.Copy(_fileBuffer, lastRowElement + 1, _tempFileBuffer, 0, _tempFileBuffer.Length);
 
-            //int i = 0;
-            //while (lastRowElement + i + 1 < span.Length)
-            //{
-            //    _tempFileBuffer[i] = _fileBuffer[lastRowElement + i + 1];
-            //    i++;
-            //}
-
-            //startOfReadForBuffer = i;
-
             return _treeBuilder;
         }
 
