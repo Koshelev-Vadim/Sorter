@@ -28,7 +28,7 @@ namespace Sorter.Core.Services
             stopWatch.Start();
 
 
-            var treeMaxStringLength = 0;
+            //var treeMaxStringLength = 0;
             //var interationNum = 0;
             var fileBuffer = new byte[(batchSizeInMegabytes + 1) * 1024 * 1024];
             //using (var reader = File.OpenText(inputFile))
@@ -95,35 +95,23 @@ namespace Sorter.Core.Services
                 var comparer = new FileRowComparer();
                 while (true)
                 {
-                    var maxRow = rows.Max(comparer);
+                    var minRow = rows.Min(comparer);
 
-                    if (maxRow == null)
+                    if (minRow == null)
                         break;
 
-                    fileWriter.WriteToFile(maxRow.Number, maxRow.String, maxRow.String.Length);
-                    rows.Remove(maxRow);
+                    fileWriter.WriteToFile(minRow.Number, minRow.String, minRow.String.Length);
+                    rows.Remove(minRow);
 
-                    if (!smallFiles[maxRow.FileNum].IsClosed())
+                    if (!smallFiles[minRow.FileNum].IsClosed())
                     {
-                        var row = smallFiles[maxRow.FileNum].GetNextString();
+                        var row = smallFiles[minRow.FileNum].GetNextString();
                         if (row != null)
-                            rows.Add(new FileRow(row, maxRow.FileNum));
+                            rows.Add(new FileRow(row, minRow.FileNum));
                     }
                         
                 }
 
-
-                
-
-                //while (true)
-                //{
-                //    var tempFileNum = treeRowSaver.SaveRowAndRemove();
-                //    if (tempFileNum == null)
-                //        break;
-
-                //    if (!smallFiles[tempFileNum.Value].IsClosed())
-                //        tree.AddToTree(smallFiles[tempFileNum.Value].GetNextString(), tempFileNum);
-                //}
 
                 stopWatch.Stop();
 

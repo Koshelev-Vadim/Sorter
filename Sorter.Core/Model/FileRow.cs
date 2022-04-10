@@ -45,9 +45,9 @@ namespace Sorter.Core.Model
             var dotPos = bytes.IndexOf<byte>(46); //'.'
             _number = bytes.ToInt(dotPos);
 
-            _string = new byte[dotPos];
-            for(int i = 0; i < dotPos; i++)
-                _string[i] = bytes[i];
+            _string = new byte[bytes.Length - dotPos - 3];
+            for (int i = dotPos + 1; i < bytes.Length - 2; i++)
+                _string[i - dotPos - 1] = bytes[i];
 
             _fileNum = fileNum;
         }
@@ -60,23 +60,23 @@ namespace Sorter.Core.Model
             if (x == null || y == null)
                 return 0;
 
-            if (x.Number < y.Number)
-                return -1;
-            else
-                return 1;
-
             var minStirngLen = Math.Min(x.String.Length, y.String.Length);
-            for(var i = 0; i < minStirngLen; i++)
+            for (var i = 0; i < minStirngLen; i++)
             {
                 if (x.String[i] < y.String[i])
                     return -1;
-                else
+                else if (x.String[i] > y.String[i])
                     return 1;
             }
 
             if (x.String.Length < y.String.Length)
                 return -1;
             else if (x.String.Length > y.String.Length)
+                return 1;
+
+            if (x.Number < y.Number)
+                return -1;
+            else if (x.Number > y.Number)
                 return 1;
 
             return 0;
